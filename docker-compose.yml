@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  gemini-ui:
+    build: .
+    container_name: gemini-tts-ui
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    env_file:
+      - .env
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - gemini-network
+
+networks:
+  gemini-network:
+    driver: bridge
