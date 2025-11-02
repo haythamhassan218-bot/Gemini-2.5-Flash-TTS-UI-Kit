@@ -479,14 +479,33 @@
             sendBtn.disabled = true;
             messageInput.disabled = true;
 
-            // Simulate API call (in real implementation, this would call the backend)
-            setTimeout(() => {
+            // Call backend API
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: message,
+                    mode: currentMode
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                addMessage(data.response, 'assistant');
+                sendBtn.disabled = false;
+                messageInput.disabled = false;
+                messageInput.focus();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Fallback to simulated response on error
                 const response = generateResponse(message, currentMode);
                 addMessage(response, 'assistant');
                 sendBtn.disabled = false;
                 messageInput.disabled = false;
                 messageInput.focus();
-            }, 1000 + Math.random() * 1000);
+            });
         }
 
         function addMessage(text, sender) {
