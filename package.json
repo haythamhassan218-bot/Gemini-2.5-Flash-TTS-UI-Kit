@@ -1,0 +1,29 @@
+{
+  "name": "gemini-2.5-flash-tts-ui-kit",
+  "version": "1.0.0",
+  "description": "Ready-To-Use Gemini 2.5 flash UI front end for text & voice chat with mode toggle",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "gemini",
+    "ai",
+    "chat",
+    "tts",
+    "voice",
+    "ui"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5",
+    "@google/generative-ai": "^0.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

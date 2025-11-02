@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini 2.5 Flash TTS UI Kit</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 24px;
+        }
+
+        .mode-toggle {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .mode-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #ccc;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(30px);
+        }
+
+        .mode-indicator {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .mode-indicator.standard {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .chat-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 800px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .chat-header h2 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .chat-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            max-width: 80%;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .message.assistant .message-avatar {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .message-content {
+            background: #f5f5f5;
+            padding: 12px 16px;
+            border-radius: 15px;
+            line-height: 1.5;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: #f9f9f9;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-send {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-send:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-voice {
+            background: #4CAF50;
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .btn-voice:hover {
+            background: #45a049;
+            transform: scale(1.1);
+        }
+
+        .btn-voice.recording {
+            background: #f44336;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .status-message {
+            text-align: center;
+            padding: 10px;
+            color: #666;
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        .mode-description {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .mode-description.standard {
+            background: rgba(240, 147, 251, 0.1);
+            border-left-color: #f093fb;
+        }
+
+        .mode-description h3 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .mode-description p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .chat-container {
+                height: calc(100vh - 200px);
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-title">
+            <div class="logo">G</div>
+            <h1>Gemini 2.5 Flash TTS UI Kit</h1>
+        </div>
+        <div class="mode-toggle">
+            <span class="mode-label">Standard Mode</span>
+            <div class="toggle-switch" id="modeToggle">
+                <div class="toggle-slider"></div>
+            </div>
+            <span class="mode-label">Pro Mode</span>
+            <div class="mode-indicator" id="modeIndicator">Standard Mode</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h2>AI Chat Assistant</h2>
+                <p>Powered by Gemini 2.5 Flash</p>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="mode-description" id="modeDescription">
+                    <h3>Standard Mode (Simulated Local Brain)</h3>
+                    <p>Cost-effective mode designed to mimic a smaller, local AI model. Perfect for basic conversations and quick responses.</p>
+                </div>
+            </div>
+            
+            <div class="chat-input">
+                <div class="input-wrapper">
+                    <input 
+                        type="text" 
+                        id="messageInput" 
+                        placeholder="Type your message here..."
+                        autocomplete="off"
+                    >
+                    <button class="btn-send" id="sendBtn">Send</button>
+                    <button class="btn-voice" id="voiceBtn" title="Voice Input">
+                        🎤
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let currentMode = 'standard'; // 'standard' or 'pro'
+        let isRecording = false;
+        let recognition = null;
+
+        // DOM elements
+        const modeToggle = document.getElementById('modeToggle');
+        const modeIndicator = document.getElementById('modeIndicator');
+        const modeDescription = document.getElementById('modeDescription');
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const voiceBtn = document.getElementById('voiceBtn');
+
+        // Initialize speech recognition if available
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                messageInput.value = transcript;
+                isRecording = false;
+                voiceBtn.classList.remove('recording');
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                isRecording = false;
+                voiceBtn.classList.remove('recording');
+                addStatusMessage('Voice recognition error. Please try again.');
+            };
+
+            recognition.onend = () => {
+                isRecording = false;
+                voiceBtn.classList.remove('recording');
+            };
+        }
+
+        // Mode toggle functionality
+        modeToggle.addEventListener('click', () => {
+            modeToggle.classList.toggle('active');
+            currentMode = modeToggle.classList.contains('active') ? 'pro' : 'standard';
+            updateModeUI();
+        });
+
+        function updateModeUI() {
+            if (currentMode === 'pro') {
+                modeIndicator.textContent = 'Pro Mode';
+                modeIndicator.classList.remove('standard');
+                modeDescription.classList.remove('standard');
+                modeDescription.innerHTML = `
+                    <h3>Pro Mode</h3>
+                    <p>Full-featured AI experience with advanced capabilities, comprehensive responses, and enhanced understanding. Ideal for complex tasks and detailed conversations.</p>
+                `;
+            } else {
+                modeIndicator.textContent = 'Standard Mode';
+                modeIndicator.classList.add('standard');
+                modeDescription.classList.add('standard');
+                modeDescription.innerHTML = `
+                    <h3>Standard Mode (Simulated Local Brain)</h3>
+                    <p>Cost-effective mode designed to mimic a smaller, local AI model. Perfect for basic conversations and quick responses.</p>
+                `;
+            }
+        }
+
+        // Send message functionality
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Add user message to chat
+            addMessage(message, 'user');
+            messageInput.value = '';
+
+            // Disable input while processing
+            sendBtn.disabled = true;
+            messageInput.disabled = true;
+
+            // Call backend API
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: message,
+                    mode: currentMode
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                addMessage(data.response, 'assistant');
+                sendBtn.disabled = false;
+                messageInput.disabled = false;
+                messageInput.focus();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Fallback to simulated response on error
+                const response = generateResponse(message, currentMode);
+                addMessage(response, 'assistant');
+                sendBtn.disabled = false;
+                messageInput.disabled = false;
+                messageInput.focus();
+            });
+        }
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = sender === 'user' ? 'U' : 'AI';
+            
+            const content = document.createElement('div');
+            content.className = 'message-content';
+            content.textContent = text;
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(content);
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addStatusMessage(text) {
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'status-message';
+            statusDiv.textContent = text;
+            chatMessages.appendChild(statusDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function generateResponse(message, mode) {
+            // Simulated responses based on mode
+            if (mode === 'pro') {
+                return `[Pro Mode] I understand you said: "${message}". In Pro Mode, I provide comprehensive, detailed responses with advanced AI capabilities. This would connect to the full Gemini 2.5 Flash API for optimal performance and features.`;
+            } else {
+                return `[Standard Mode] Got it: "${message}". I'm running in cost-effective mode, simulating a local AI brain. Responses are optimized for efficiency while maintaining quality.`;
+            }
+        }
+
+        // Voice input functionality
+        voiceBtn.addEventListener('click', () => {
+            if (!recognition) {
+                addStatusMessage('Voice recognition not supported in this browser.');
+                return;
+            }
+
+            if (isRecording) {
+                recognition.stop();
+                isRecording = false;
+                voiceBtn.classList.remove('recording');
+            } else {
+                try {
+                    recognition.start();
+                    isRecording = true;
+                    voiceBtn.classList.add('recording');
+                    addStatusMessage('Listening... Speak now.');
+                } catch (error) {
+                    console.error('Error starting recognition:', error);
+                    addStatusMessage('Could not start voice recognition.');
+                }
+            }
+        });
+
+        // Initial welcome message
+        setTimeout(() => {
+            addMessage('Hello! I\'m your Gemini 2.5 Flash AI assistant. You can toggle between Standard Mode (cost-effective) and Pro Mode (full-featured) using the switch in the header. How can I help you today?', 'assistant');
+        }, 500);
+    </script>
+</body>
+</html>
